@@ -2,6 +2,7 @@ import PySimpleGUI as sg
 import math
 
 # Base E-series values
+# I use this as a primer to create the thousands of different values of resistors.
 E_SERIES = {
     'E3': [1.0, 2.2, 4.7],
     'E6': [1.0, 1.5, 2.2, 3.3, 4.7, 6.8],
@@ -10,7 +11,7 @@ E_SERIES = {
     'E48': [1.00, 1.05, 1.10, 1.15, 1.21, 1.27, 1.33, 1.40, 1.47, 1.54, 1.62, 1.69, 1.78, 1.87, 1.96, 2.05, 2.15, 2.26, 2.37, 2.49, 2.61, 2.74, 2.87, 3.01, 3.16, 3.32, 3.48, 3.65, 3.83, 4.02, 4.22, 4.42, 4.64, 4.87, 5.11, 5.36, 5.62, 5.90, 6.19, 6.49, 6.81, 7.15, 7.50, 7.87, 8.25, 8.66, 9.09, 9.53],
     'E96': [1.00, 1.02, 1.05, 1.07, 1.10, 1.13, 1.15, 1.18, 1.21, 1.24, 1.27, 1.30, 1.33, 1.37, 1.40, 1.43, 1.47, 1.50, 1.54, 1.58, 1.62, 1.65, 1.69, 1.74, 1.78, 1.82, 1.87, 1.91, 1.96, 2.00, 2.05, 2.10, 2.15, 2.21, 2.26, 2.32, 2.37, 2.43, 2.49, 2.55, 2.61, 2.67, 2.74, 2.80, 2.87, 2.94, 3.01, 3.09, 3.16, 3.24, 3.32, 3.40, 3.48, 3.57, 3.65, 3.74, 3.83, 3.92, 4.02, 4.12, 4.22, 4.32, 4.42, 4.53, 4.64, 4.75, 4.87, 4.99, 5.11, 5.23, 5.36, 5.49, 5.62, 5.76, 5.90, 6.04, 6.19, 6.34, 6.49, 6.65, 6.81, 6.98, 7.15, 7.32, 7.50, 7.68, 7.87, 8.06, 8.25, 8.45, 8.66, 8.87, 9.09, 9.31, 9.53, 9.76]
 }
-
+# This function will create all the different resistors baised off of the primes.
 def generate_e_series_values(series, min_value, max_value):
     base_values = E_SERIES[series]
     values = []
@@ -23,7 +24,7 @@ def generate_e_series_values(series, min_value, max_value):
 
 
 
-# Discord-inspired theme
+# Discord-inspired theme that I am matching as closly as possable.
 sg.theme_add_new('Discord', {'BACKGROUND': '#36393f',
                              'TEXT': '#dcddde',
                              'INPUT': '#40444b',
@@ -37,6 +38,7 @@ sg.theme_add_new('Discord', {'BACKGROUND': '#36393f',
 
 sg.theme('Discord')
 
+# Create the layout for all of the objects that will be used in the app.
 layout = [
     [sg.Text('Voltage Divider Calculator', font=('Arial', 20))],
     [sg.Text('Input Voltage (Vin):', size=(15, 1)), sg.InputText(key='-VIN-')],
@@ -60,8 +62,10 @@ layout = [
 ]
 
 
-
+# make the window, and populate it with all of the objects.
 window = sg.Window('VoltageDevider', layout, finalize=True, resizable=True, size=(800, 600))
+
+# this is the math behind the selections the user inputs.
 
 def find_best_resistor_combinations(Vin, Vout, e_series, desired_current=None, num_results=20):
     resistors = generate_e_series_values(e_series, 1, 1e6)  # Generate resistors from 1 ohm to 1 Mohm
@@ -85,13 +89,13 @@ def find_best_resistor_combinations(Vin, Vout, e_series, desired_current=None, n
 
     combinations.sort(key=lambda x: x[5])  # Sort by total error
     
-    # Remove redundant combinations
+    # Remove redundant combinations like powers of 10, 100, 1000 ....
     unique_combinations = []
     seen_ratios = set()
     for combo in combinations:
         R1, R2 = combo[0], combo[1]
         ratio = R2 / (R1 + R2)
-        rounded_ratio = round(ratio, 4)  # Round to 4 decimal places for comparison
+        rounded_ratio = round(ratio, 4)  # Round to 4 decimal places for comparison. Can be closer but seams redundant.
         if rounded_ratio not in seen_ratios:
             seen_ratios.add(rounded_ratio)
             unique_combinations.append(combo)
